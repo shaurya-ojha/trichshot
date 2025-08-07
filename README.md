@@ -1,6 +1,6 @@
 # TrichShot 🎯
 
-A real-time hand detection system that helps prevent trichotillomania (hair-pulling) episodes by providing visual warnings when hands approach the face area. Features smart camera detection, external camera prioritization, and performance optimizations for various hardware configurations.
+A real-time hand detection system that helps prevent [trichotillomania](https://mhanational.org/conditions/trichotillomania-hair-pulling/) (hair-pulling) episodes by providing visual warnings when hands approach the face area. Features smart camera detection, external camera prioritization, and performance optimizations for various hardware configurations.
 
 ![TrichShot Demo](https://img.shields.io/badge/Status-Active-brightgreen) ![Python](https://img.shields.io/badge/Python-3.10+-blue) ![Docker](https://img.shields.io/badge/Docker-Supported-blue) ![License](https://img.shields.io/badge/License-MIT-green)
 
