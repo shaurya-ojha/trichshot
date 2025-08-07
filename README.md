@@ -43,7 +43,7 @@ A real-time hand detection system that helps prevent trichotillomania (hair-pull
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/trichshot.git
+   git clone https://github.com/virualbeck/trichshot.git
    cd trichshot
    ```
 
@@ -284,8 +284,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/trichshot/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/trichshot/discussions)
+- **Issues**: [GitHub Issues](https://github.com/virtualbeck/trichshot/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/virtualbeck/trichshot/discussions)
 - **Documentation**: This README and inline code comments
 
 ---
